@@ -30,25 +30,35 @@ import {
 dotenv.config();
 
 // cors option
-const corsOptions = {
-    origin: 'https://admin-dashboard-frontend-gkrv.onrender.com',
-    optionsSuccessStatus: 200,
-};
-
+// const corsOptions = {
+//     origin: 'https://admin-dashboard-frontend-gkrv.onrender.com',
+//     optionsSuccessStatus: 200,
+// };
 const app = express();
+
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 app.use(morgan('common'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+var whitelist = ['https://admin-dashboard-frontend-gkrv.onrender.com'];
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+};
 
 /* @ROUTES */
-app.use('/client', clientRoutes);
-app.use('/general', generalRoutes);
-app.use('/management', managementRoutes);
-app.use('/sales', salesRoutes);
+app.use('/client', cors(corsOptions), clientRoutes);
+app.use('/general', cors(corsOptions), generalRoutes);
+app.use('/management', cors(corsOptions), managementRoutes);
+app.use('/sales', cors(corsOptions), salesRoutes);
 
 /* @MONGOOSE SETUP */
 const PORT = process.env.PORT || 9000;
